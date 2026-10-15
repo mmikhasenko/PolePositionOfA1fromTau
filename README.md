@@ -1,6 +1,10 @@
 # Pole position of the a₁ from τ decay
 
-Julia 1.13 code for [Mikhasenko et al., Phys. Rev. D 98, 096021 (2018)](https://doi.org/10.1103/PhysRevD.98.096021). Copy the paper's BibTeX from [CITATION.bib](CITATION.bib).
+[![Pages](https://img.shields.io/badge/Pages-documentation-blue)](https://mmikhasenko.github.io/PolePositionOfA1fromTau/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/mmikhasenko/PolePositionOfA1fromTau/ci.yml?branch=main&label=Tests)](https://github.com/mmikhasenko/PolePositionOfA1fromTau/actions/workflows/ci.yml)
+[![Paper](https://img.shields.io/badge/Paper-PRD%2098%2C%20096021-green)](https://doi.org/10.1103/PhysRevD.98.096021)
+
+Julia 1.13 implementation of the a₁ lineshape model.
 
 The lineshape is a Breit–Wigner-like parametrization whose energy-dependent self-energy describes a₁ → ρπ → 3π, symmetrized over the three-pion decay Dalitz plot. The Dalitz integral supplies the absorptive part; a subtracted dispersion integral supplies the corresponding real part and implements the first-sheet analytic structure of the three-body loop. The QTB variant omits interference between the two ρπ decay chains.
 
@@ -23,3 +27,24 @@ julia +1.13 --project=. docs/make.jl
 [Equations and definitions](docs/src/lineshape.md) · [API](docs/src/api.md) · [Documentation](https://mmikhasenko.github.io/PolePositionOfA1fromTau/). Generated Markdown lives in `docs/src/`; edit `docs/templates/` and regenerate. Documenter builds HTML in `docs/build/`; CI checks tests, doctests, and generated pages, uploads its report, and publishes successful main builds to `gh-pages` (served by GitHub Pages from that branch). Script output goes to `artifacts/`; `--smoke` runs smaller examples.
 
 The [analytic-continuation addendum](addendum/report.pdf) ([source](addendum/report.tex), formerly `research/`) explains Appendix C and reviews related papers. Its local resolution does **not** certify global contour transport to the pole. This modernization makes the real-axis model reusable; it does not claim a revised pole result.
+
+## Citation
+
+The lineshape is studied in [JPAC, Phys. Rev. D 98, 096021 (2018)](https://doi.org/10.1103/PhysRevD.98.096021).
+
+```text
+@article{Mikhasenko:2018bzm,
+  author = {Mikhasenko, M. and others},
+  collaboration = {JPAC},
+  title = {Pole position of the $a_1(1260)$ from $\tau$-decay},
+  journal = {Physical Review D},
+  volume = {98},
+  number = {9},
+  pages = {096021},
+  year = {2018},
+  doi = {10.1103/PhysRevD.98.096021},
+  eprint = {1810.00016},
+  archivePrefix = {arXiv},
+  primaryClass = {hep-ph}
+}
+```
