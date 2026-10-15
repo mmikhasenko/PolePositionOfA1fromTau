@@ -1,6 +1,6 @@
 module SomeRoutines
 
-using Juno
+using DelimitedFiles
 using Interpolations
 
 export make_lookup_function, make_lookup_with_asymptotics_and_tan_map
@@ -16,7 +16,7 @@ export build_function_from_lookup
 function make_lookup_function(heavy_function, range)
     cal = [heavy_function(s) for s in range]
     lookup = interpolate((range,), cal, Gridded(Linear()))
-    myf(s::Real) = (range[1] <= s <= range[end]) ? lookup[s] : error("the requested value ($s) is outside of the lookup range [$(range[1]), $(range[end])]")
+    myf(s::Real) = (range[1] <= s <= range[end]) ? lookup(s) : error("the requested value ($s) is outside of the lookup range [$(range[1]), $(range[end])]")
     myf
 end
 
@@ -30,10 +30,10 @@ end
 """
 function make_lookup_with_asymptotics_and_tan_map(heavy_function, sth, lim, N=100,
                         low_asympt=0.0, high_asympt=1.0/(8π), tol = 0.05)
-    sv = [sth+tan(t) for t in linspace(0.0,atan(lim-sth),N)]
+    sv = [sth+tan(t) for t in range(0.0,atan(lim-sth),N)]
     lf = make_lookup_function(heavy_function, sv)
     Δrel_high = abs((heavy_function(lim)-high_asympt)/high_asympt)
-    Δrel_low  = abs((heavy_function(sth)-low_asympt)/ low_asympt)
+    Δrel_low  = abs(heavy_function(sth)-low_asympt)/max(abs(low_asympt),1.0)
     ((Δrel_high > tol) || (Δrel_low > tol)) && error("the function did not reach asymptotics, Δrels = ($(Δrel_low), $(Δrel_high)). Check the limits!")
     function myf(s::Real)
         (s < sv[1]) && return low_asympt;
@@ -60,9 +60,10 @@ function calculate_on_grid(func, grid_x, grid_y, output)
     # interference with round 1.0
     sv = [sx+1im*sy for sy in grid_y, sx in grid_x]
     sv = hcat(sv...)
-    vals = Array{Complex{Float64}}(length(sv))
-    @progress for (i,s) in enumerate(sv)
+    vals = Vector{ComplexF64}(undef, length(sv))
+    for (i,s) in enumerate(sv)
         vals[i] = func(s);
+        isfinite(vals[i]) || error("Non-finite grid value at $s")
     end
     cal = reshape(vals, length(grid_y), length(grid_x))
     output_re, output_im = output*"_re.txt", output*"_im.txt"
@@ -100,12 +101,12 @@ end
 """
 function build_function_from_lookup(output)
     (cal, grid_x, grid_y) = get_results(output)
-    intrp = interpolate((grid_x, grid_y), cal.', Gridded(Linear()))
+    intrp = interpolate((grid_x, grid_y), permutedims(cal), Gridded(Linear()))
     function fun(s)
         x = real(s)
         y = imag(s)
-        (grid_x[1] ≤ x ≤ grid_x[end]) && (grid_y[1] ≤ y ≤ grid_x[end]) && return intrp[x,y]
-        return -42.0 #error("Outside of precalculated range!")
+        (grid_x[1] ≤ x ≤ grid_x[end]) && (grid_y[1] ≤ y ≤ grid_y[end]) && return intrp(x,y)
+        throw(DomainError(s, "Outside of precalculated range"))
     end
     fun
 end

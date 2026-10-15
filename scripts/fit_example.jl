@@ -1,0 +1,7 @@
+include("common.jl")
+rng = MersenneTwister(1696497)
+x = collect(range(0,1,length=30))
+data = hcat(x,2 .+ 3x .+ 0.01randn(rng,length(x)),fill(0.01,length(x)))
+result = Fitting.fit_with_grad(Fitting.build_chi2((x,a,b)->a+b*x,data); starting_pars=[1.0,1.0],verbose=false)
+@assert isapprox(result[2],[2,3]; atol=0.03)
+println(result)

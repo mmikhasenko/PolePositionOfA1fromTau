@@ -1,0 +1,5 @@
+include("common.jl")
+xs = range(4Masses.mπ2+0.001,1.2,length=SMOKE ? 5 : 100)
+ys = range(-0.25,0.25,length=SMOKE ? 3 : 100)
+SomeRoutines.calculate_on_grid(Isobars.f1_I,xs,ys,joinpath(OUT,"isobar_I"))
+SomeRoutines.calculate_on_grid(Isobars.f1_II,xs,ys,joinpath(OUT,"isobar_II"))

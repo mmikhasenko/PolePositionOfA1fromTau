@@ -1,0 +1,11 @@
+parameters_are = "illustrative, not a refit"
+julia_version = "1.13.1"
+threshold_GeV2 = 0.1753180641
+m_GeV = 1.3
+normalization = 1.0
+density_grid_points = 100
+density_high_tail = 0.039788735772973836
+model = "qtb"
+density_tail_starts_GeV2 = 10000.0
+g_GeV = 7.0
+subtraction_GeV2 = 0.8369139288999998

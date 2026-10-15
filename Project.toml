@@ -1,0 +1,45 @@
+name = "PolePositionOfA1fromTau"
+uuid = "416f9628-210c-46da-93b2-ec6760b87136"
+version = "0.2.0"
+authors = ["M. Mikhasenko and contributors"]
+
+[deps]
+Cuba = "8a292aeb-7a57-582c-b821-06e4c11590b1"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+GSL = "92c85e6c-cbff-5e0c-80f7-495c94daaecd"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+
+[compat]
+Cuba = "2.3.0"
+DelimitedFiles = "1.9.1"
+Documenter = "1.19.0"
+ForwardDiff = "1.4.6"
+GSL = "1.0.1"
+Interpolations = "0.16.3"
+LinearAlgebra = "1.13.0"
+NLopt = "1.2.1"
+Optim = "2.3.2"
+Plots = "1.41.7"
+Printf = "1.11.0"
+QuadGK = "2.11.3"
+Random = "1.11.0"
+Statistics = "1.11.5"
+TOML = "1.0.3"
+julia = "1.13"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

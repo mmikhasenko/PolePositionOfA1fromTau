@@ -1,0 +1,30 @@
+Literature review added 15 October 2026
+
+Full texts inspected (local PDF and extracted text in sources/):
+Colangelo et al., arXiv:1807.11937v2, Appendix A pp.53-56, Fig.22.
+  Same equal-mass endpoint geometry; mass continuation selects horseshoe.
+  Figure 22 reproduced in report with attribution; comparison to Appendix C is ours.
+Gasser and Rusetsky, arXiv:1809.06399v2, introduction and Secs.3-4.
+  Outer dispersive-contour deformation keeps angular integration simple.
+Guo, arXiv:1412.3970, Sec.III Eqs.16,19 and Fig.5.
+  Explicit additional term needed in continued Pasquier inversion.
+Sadasivan et al., arXiv:2112.03355, Sec.III, Fig.3.
+  Self-energy and spectator contours; initial prescription selects sheet.
+Dawid et al., arXiv:2303.04394, Secs.IV C-D, Figs.8-9.
+  Kernel discontinuity corrections and piecewise sheet assignments.
+Pasquier and Pasquier, Phys.Rev.177,2482 (1969), Sec.III p.2487.
+  Principal two-body-discontinuity sheet has undistorted phase-space contour.
+  PDF is scanned; extracted text obtained via Tesseract OCR.
+  Public scan retrieved from JPAC ScatteringRef/1960s archive at
+  https://infomall.org/sites/dsc/jpac/ScatteringRef/1960s/
+
+Restricted evidence, explicitly qualified in report:
+Aitchison and Pasquier, Phys.Rev.152,1274 (1966): publisher abstract inspected.
+Pasquier and Pasquier, Phys.Rev.170,1294 (1968): abstract and original 2018 attribution.
+Hwa, Phys.Rev.130,2580 (1963): abstract and original 2018 attribution to choice 1.
+Full text of these three historical articles not obtained; no detailed prescription
+is attributed to them on the basis of an independent full-text reading.
+
+The report distinguishes exact endpoint-geometry correspondence, analogous
+continuation obstacles, and distinct dynamical models. No source certifies the
+repository's contour implementation or quantifies the Appendix C pole shift.

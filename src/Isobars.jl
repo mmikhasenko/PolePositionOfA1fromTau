@@ -1,12 +1,5 @@
-module Masses
-global const mπ=0.13957; global const mπ2=mπ^2;
-global const mρ=0.77526; global const mρ2=mρ^2; # from PDG2016
-global const mτ=1.776; global const mτ2=mτ^2;
-export mπ, mπ2, mρ, mρ2, mτ, mτ2
-end
-
 module Isobars
-using Masses: mπ, mπ2, mρ
+using ..Masses: mπ, mπ2, mρ
 export λ, U0, U1, f1_I, f1_II, r1
 
 """
@@ -32,7 +25,7 @@ for f in [["I","-"], ["II","+"]]
             ρ0 = 1/(8*π)*2*p0/mρ
             # extra factor due to the spin of ρ
             R = 5.0
-            ff = p^2/p0^2*(1./R^2+p0^2)/(1./R^2+p^2)
+            ff = p^2/p0^2*(1.0/R^2+p0^2)/(1.0/R^2+p^2)
             mΓ = mρ*Γρ*ρ/ρ0*ff
             return sqrt(ff)/(mρ^2-s + $(Symbol(f[2]))(1.0im*mΓ)) #
         end
@@ -50,8 +43,8 @@ for f in [["I","-"], ["II","+"]]
             ρ0 = 1/(8*π)*2*p0/mρ
             # extra factor due to the spin of ρ
             R = 5
-            ff = p^2/p0^2*(1./R^2+p0^2)/(1./R^2+p^2)
-            sqrtff = sqrt(s/4-mπ2)/p0 * sqrt(1./R^2+p0^2)/(sqrt(1./R^2+p^2))
+            ff = p^2/p0^2*(1.0/R^2+p0^2)/(1.0/R^2+p^2)
+            sqrtff = sqrt(s/4-mπ2)/p0 * sqrt(1.0/R^2+p0^2)/(sqrt(1.0/R^2+p^2))
             mΓ = mρ*Γρ*ρ/ρ0*ff
             return sqrtff/(mρ^2-s + $(Symbol(f[2]))(1.0im*mΓ)) #
         end
@@ -66,7 +59,7 @@ function r1r(s::Real)
     ρ0 = 1/(8*π)*2*p0/mρ
     # extra factor due to the spin of ρ
     R = 5
-    ff = p^2/p0^2*(1./R^2+p0^2)/(1./R^2+p^2)
+    ff = p^2/p0^2*(1.0/R^2+p0^2)/(1.0/R^2+p^2)
     return 2mρ*Γρ/ρ0*sqrt(ff)
 end
 
@@ -78,7 +71,7 @@ function r1r(s::Number)
     ρ0 = 1/(8*π)*2*p0/mρ
     # extra factor due to the spin of ρ
     R = 5
-    ff = p^2/p0^2*(1./R^2+p0^2)/(1./R^2+p^2)
+    ff = p^2/p0^2*(1.0/R^2+p0^2)/(1.0/R^2+p^2)
     return 2mρ*Γρ/ρ0*sqrt(ff)
 end
 
@@ -108,7 +101,7 @@ end
 
 """
     U0r(s)
-Parameterization of 'sigma(770)'-meson via the Breit-Wigner function.
+Parameterization of 'sigma(800)'-meson via the Breit-Wigner function.
 The function has arbitrary normalization. Use `f1(s)` for the
 `quasi-two-body` normalization
 """
@@ -129,8 +122,7 @@ end
 # normalized functions
 """
     U1(s)
-Parameterization of 'sigma(800)'-meson via the Breit-Wigner function.
-It can be referenced to Tornquist.
+Normalized rho(770) Breit-Wigner spectral function.
 The function has the `quasi-two-body` normalization.
 """
 U1(s::Number) = U1r(s)/ns1

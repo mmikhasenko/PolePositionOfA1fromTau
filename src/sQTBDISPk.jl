@@ -1,11 +1,11 @@
 module sQTBDISPk
 
-using JPACModel: ρ_qtb, ρ_qtb_i, ρ_qtb_disp, ρ_qtb_disp_i
+using ..JPACModel: ρ_qtb, ρ_qtb_i, ρ_qtb_disp, ρ_qtb_disp_i
 
 export t_sqtb_dispk, t_sqtb_dispk_II, t_sqtb_dispk_II_external
 export intens_sqtb_dispk
 
-using Masses: mτ
+using ..Masses: mτ
 
 # # --------------------------------------------------------------
 

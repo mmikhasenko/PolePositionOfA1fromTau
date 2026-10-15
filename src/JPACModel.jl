@@ -3,11 +3,12 @@ module JPACModel
 # registered packages
 using Cuba
 # my packages
-push!(LOAD_PATH, "src")
-using Isobars: f1_I, f1_II
-using Masses: mπ, mπ2, mρ, mτ
-using DalitzPlotAnalysis
-using SomeRoutines
+using QuadGK: quadgk
+using ..Dispersive: DispersiveLineshape, selfenergy
+using ..Isobars: f1_I, f1_II
+using ..Masses: mπ, mπ2, mρ, mτ
+using ..DalitzPlotAnalysis
+using ..SomeRoutines
 
 export qtb, interference, symm
 export interference_array
@@ -51,6 +52,7 @@ export t_qtb_disp_II, t_qtb_disp_II_external
 # end
 
 function qtb(s::Real)
+  s <= 9mπ2 && return 0.0
   s1min = 4.0 * mπ2
   s1max = (sqrt(s) - mπ)^2
   function integrand(s1)
@@ -147,7 +149,7 @@ function interference(s, rr = 1.0)
         # s3
     EE4 = s-mπ2-s1
     sqrtλλ = sqrt((sqrts-mπ)^2-s1)*sqrt((sqrts+mπ)^2-s1)*sqrt(s1-4mπ2)*sqrt(s1)
-    s3_p, s3_m = 2mπ2+EE4/2+sqrtλλ/(2s1)*[1.0,-1.0]
+    s3_p, s3_m = (2mπ2+EE4/2+sqrtλλ/(2s1), 2mπ2+EE4/2-sqrtλλ/(2s1))
     s3_c =5mπ2#real(s3_p+s3_m)/2
 
     s3 = zero(s)
@@ -190,7 +192,7 @@ function interference_array(s, rr = 1.0, N=10)
         # s3
     EE4 = s-mπ2-s1
     sqrtλλ = sqrt((sqrts-mπ)^2-s1)*sqrt((sqrts+mπ)^2-s1)*sqrt(s1-4mπ2)*sqrt(s1)
-    s3_p, s3_m = 2mπ2+EE4/2+sqrtλλ/(2s1)*[1.0,-1.0]
+    s3_p, s3_m = (2mπ2+EE4/2+sqrtλλ/(2s1), 2mπ2+EE4/2-sqrtλλ/(2s1))
     s3_c = 6mπ2#real(s3_p+s3_m)/2
 
     s3 = zero(s)
@@ -210,187 +212,53 @@ function interference_array(s, rr = 1.0, N=10)
 
     return ampl2
   end
-  [integrand([x,y]) for y in linspace(0,1,N), x in linspace(0,1,N)]
+  [integrand([x,y]) for y in range(0,1,N), x in range(0,1,N)]
 end
 
 symm(args...) = qtb(args...) + interference(args...)
 ρ_symm = symm
 ρ_qtb = qtb
 
-# ----------------------------------------------------------------------
-# Dispersive integral
-for name in ["symm", "qtb"]
-    _ρ_name         = Symbol("ρ_"*name);
-    _ρ_name_i       = Symbol("ρ_"*name*"_i");
-    _ρ_name_disp0   = Symbol("ρ_"*name*"_disp0");
-    _ρ_name_disp_r0 = Symbol("ρ_"*name*"_disp_r0");
-    _ρ_name_disp    = Symbol("ρ_"*name*"_disp");
-    _ρ_name_disp_i  = Symbol("ρ_"*name*"_disp_i");
 
-    # # # # First lookup table for the ρsymm
-    @eval $(_ρ_name_i) = make_lookup_with_asymptotics_and_tan_map($(_ρ_name), 9mπ2, 1e4)
-
-    # # # Second, the dispersive integral
-    # real argument
-    @eval $(_ρ_name_disp0)(s::Real) = s/(π*1im)*quadgk(t->
-        begin
-            sp = 9mπ2+tan(t)
-            $(_ρ_name_i)(sp)/(sp*(sp-s-1e-7im)*cos(t)^2)
-        end
-        ,0,π/2)[1]
-    #shift
-    @eval const $(_ρ_name_disp_r0) = imag($(_ρ_name_disp0)((mπ+mρ)^2))
-    @eval $(_ρ_name_disp)(s::Real) = $(_ρ_name_disp0)(s)-1im*$(_ρ_name_disp_r0)
-
-    # complex argument
-    @eval function $(_ρ_name_disp)(s)
-        (imag(s) == 0.0) && return $(_ρ_name_disp)(real(s))
-        integr = quadgk(t->
-            begin
-                sp = 9mπ2+tan(t)
-                $(_ρ_name_i)(sp)/(sp*(sp-s)*cos(t)^2)
-            end
-            ,0,π/2)[1]
-        -1im*$(_ρ_name_disp_r0)+s/(π*1im)*integr
-    end
-
-    @eval $(_ρ_name_disp_i) = make_lookup_function($(_ρ_name_disp), linspace(9mπ2,3.5,60))
-end
-
-using Plots
-
-plot(x->ρ_qtb(x), linspace(9mπ2, 3, 100))
-plot( x->real(ρ_qtb_disp(x)), linspace(9mπ2, 3, 100))
-plot!(x->imag(ρ_qtb_disp(x)), linspace(9mπ2, 3, 100))
-
-# ----------------------------------------------------------------------
-# ρ_qtb_i = make_lookup_with_asymptotics_and_tan_map(qtb, 9mπ2, 1e4)
-
-# # # # Second, the dispersive integral
-# # real argument
-# ρ_qtb_disp0(s::Real)=s/π*quadgk(t->
-#     begin
-#         sp = 9mπ2+tan(t)
-#         ρ_qtb_i(sp)/(sp*(sp-s-1e-7im)*cos(t)^2)
-#     end
-#     ,0,π/2)[1]
-# const ρqr0 = real(ρtilde0((mπ+mρ)^2))
-# ρ_qtb_disp(s::Real) = ρ_qtb_disp0(s)-ρqr0
-#
-# # complex argument
-# ρ_qtb_disp(s::Complex{Float64})=-ρqr0+s/π*quadgk(t->
-#     begin
-#         sp = 9mπ2+tan(t)
-#         ρi(sp)/(sp*(sp-s)*cos(t)^2)
-#     end
-#     ,0,π/2)[1]
-#
-# ρ_qtb_disp_i = make_lookup_function(ρ_qtb_disp, linspace(9mπ2,3.5,60))
-
-# ------------------------------------------------------------------------------------
-# amplitudes for the complex argument
-for name in ["symm", "symm_disp", "qtb_disp", "qtb"]
-    _t_name = Symbol("t_"*name)
-    _ρ_name = Symbol("ρ_"*name)
-    _ρ_name_i = Symbol("ρ_"*name*"_i")
-    @eval function $(_t_name)(s,m,g)
-        g^2/(m^2-s-0.5im*g^2*$(_ρ_name)(s))
-    end
-    @eval function $(_t_name)(s::Real,m,g)
-        g^2/(m^2-s-0.5im*g^2*$(_ρ_name_i)(s))
+# Build expensive interpolation tables only when requested, never at import time.
+const density_cache = Dict{Symbol,Any}()
+const model_cache = Dict{Symbol,Any}()
+function density(name::Symbol)
+    get!(density_cache, name) do
+        f = name == :qtb ? qtb : name == :symm ? symm : error("Unknown density: $name")
+        make_lookup_with_asymptotics_and_tan_map(f, 9mπ2, 1e4)
     end
 end
-
-t_qtb(1.1, 1.1, 7)
-
-
-# function t_symm(s::Real,m,g)
-#     1.0/(m^2-s-0.5im*g^2*ρsi(s))
-# end
-# function t_symm(s,m,g)
-#     1.0/(m^2-s-0.5im*g^2*symm(s))
-# end
-
-
-# ------------------------------------------------------------------------------------
-# function t_symm_disp(s,m,g)
-#     1.0/(m^2-s-g^2*ρstilde(s)/2.0)
-# end
-#
-# function t_symm_disp(s::Real,m,g)
-#     1.0/(m^2-s-g^2*ρstildei(s)/2.0)
-# end
-
-function t_symm_disp_II(s,m,g)
-    g^2/(m^2-s-1im*g^2*(ρ_symm_disp(s)/2.0+symm(s)))
+function dispersive_model(name::Symbol)
+    get!(model_cache, name) do
+        DispersiveLineshape(density(name); threshold=9mπ2, subtraction=(mπ+mρ)^2)
+    end
 end
-
-function t_symm_disp_II_external(s,m,g,symm_external)
-    g^2/(m^2-s-1im*g^2*(ρ_symm_disp(s)/2.0+symm_external(s)))
+for name in (:qtb, :symm)
+    rhoi = Symbol("ρ_", name, "_i")
+    rhod = Symbol("ρ_", name, "_disp")
+    rhodi = Symbol("ρ_", name, "_disp_i")
+    @eval $rhoi(s::Real) = density($(QuoteNode(name)))(s)
+    @eval $rhod(s) = -im*selfenergy(dispersive_model($(QuoteNode(name))), s)
+    @eval $rhodi(s::Real) = $rhod(s)
 end
-
-# ------------------------------------------------------------------------------------
-# function t_qtb_disp(s,m,g)
-#     1.0/(m^2-s-g^2*ρtilde(s)/2.0)
-# end
-#
-# function t_qtb_disp(s::Real,m,g)
-#     1.0/(m^2-s-g^2*ρtildei(s)/2.0)
-# end
-
-function t_qtb_disp_II(s,m,g)
-    g^2/(m^2-s-1im*g^2*(ρ_qtb_disp(s)/2.0+ρ_qtb(s)))
+for name in (:symm, :symm_disp, :qtb_disp, :qtb)
+    t = Symbol("t_", name)
+    rho = Symbol("ρ_", name)
+    rhoi = Symbol("ρ_", name, "_i")
+    @eval $t(s,m,g) = g^2/(m^2-s-0.5im*g^2*$rho(s))
+    @eval $t(s::Real,m,g) = g^2/(m^2-s-0.5im*g^2*$rhoi(s))
+    phase = startswith(string(name), "qtb") ? :ρ_qtb_i : :ρ_symm_i
+    intensity = Symbol("intens_", name)
+    @eval $intensity(s, m, g, n) = (9mπ2 < s < mτ^2) ?
+        abs2(n*$t(s,m,g))*$phase(s)*(mτ^2-s)^2/s*(1+2s/mτ^2) : zero(m+g+n)
 end
-
-function t_qtb_disp_II_external(s,m,g,qtb_external)
-    g^2/(m^2-s-1im*g^2*(ρ_qtb_disp(s)/2.0+qtb_external(s)))
+for name in (:qtb, :symm)
+    tII = Symbol("t_", name, "_disp_II")
+    external = Symbol(tII, "_external")
+    rhod = Symbol("ρ_", name, "_disp")
+    rho = Symbol("ρ_", name)
+    @eval $external(s,m,g,continued) = g^2/(m^2-s-im*g^2*($rhod(s)/2+continued(s)))
+    @eval $tII(s,m,g) = $external(s,m,g,$rho)
 end
-# # ------------------------------------------------------------------------------------
-# function t_qtb_disp_sqrts(s,m,g)
-#     1.0/(m^2-s-g^2*ρtilde(s)/2.0)
-# end
-#
-# function t_qtb_disp_sqrts(s::Real,m,g)
-#     1.0/(m^2-s-g^2*ρtildei(s)/2.0)
-# end
-#
-# function t_qtb_disp_sqrts_II(s,m,g)
-#     1.0/(m^2-s-g^2*(ρtilde(s)/2.0+1.0im*qtb(s)))
-# end
-
-# ------------------------------------------------------------------------------------
-# for the following functions the model and data must be defined
-for model in ["symm", "symm_disp"]
-      @eval function $(Symbol("intens_"*model))(s,pars...)
-            A = $(Symbol("t_"*model))(s,pars[1:end-1]...)
-            phsp = ρ_symm_i(s)
-            abs2(pars[end]*A)*phsp*(mτ^2-s)^2/s*(1+2*s/mτ^2)
-        end
-end
-
-for model in ["qtb", "qtb_disp"]
-      @eval function $(Symbol("intens_"*model))(s,pars...)
-            A = $(Symbol("t_"*model))(s,pars[1:end-1]...)
-            phsp = ρ_qtb_i(s)
-            abs2(pars[end]*A)*phsp*(mτ^2-s)^2/s*(1+2*s/mτ^2)
-        end
-end
-
-let
-    plot( x->real(t_qtb(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!(x->real(t_symm(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!( x->real(t_qtb_disp(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!(x->real(t_symm_disp(x, 1.3, 7.0)), 0.3:0.03:3)
-
-    plot!( x->imag(t_qtb(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!(x->imag(t_symm(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!( x->imag(t_qtb_disp(x, 1.3, 7.0)), 0.3:0.03:3)
-    plot!(x->imag(t_symm_disp(x, 1.3, 7.0)), 0.3:0.03:3)
-end
-
-intens_qtb(1.1, 1.1, 7, 1.0)
-intens_qtb_disp(1.1, 1.1, 7, 1.0)
-intens_symm(1.1, 1.1, 7, 1.0)
-intens_symm_disp(1.1, 1.1, 7, 1.0)
-
 end

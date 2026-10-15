@@ -2,6 +2,7 @@ module Fitting
 
 export build_chi2, fit, fit_with_grad
 
+using LinearAlgebra
 using NLopt
 using ForwardDiff
 

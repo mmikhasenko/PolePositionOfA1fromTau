@@ -1,0 +1,55 @@
+name: Julia tests and Documenter
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-docs:
+    runs-on: ubuntu-latest
+    env:
+      JULIA_NUM_PRECOMPILE_TASKS: '2'
+      GKSwstype: '100'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.13'
+      - uses: julia-actions/cache@v2
+      - name: Instantiate locked environment
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Test
+        run: julia --project=. -e 'using Pkg; Pkg.test()'
+      - name: Smoke-test command-line workflows
+        run: julia --project=. test/smoke_scripts.jl
+      - name: Check generated Markdown
+        run: julia --project=. scripts/generate_docs.jl --check
+      - name: Build documentation with Documenter
+        shell: bash
+        run: |
+          set -o pipefail
+          julia --project=. docs/make.jl 2>&1 | tee documenter.log
+      - name: Report documentation result
+        if: always()
+        shell: bash
+        run: |
+          echo '## Documenter build' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f docs/build/index.html ]; then
+            echo 'HTML generated. See the documentation artifact and build log.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Documentation build did not complete. See job logs.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: documentation-and-report
+          path: |
+            docs/build/
+            documenter.log
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lineshape-and-smoke-results
+          path: artifacts/

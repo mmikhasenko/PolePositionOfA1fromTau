@@ -1,5 +1,6 @@
 module ErrorPropagation
 
+using LinearAlgebra, Statistics
 using Optim
 
 export propagate_errors_to_BW_parameters, get_ellipce_from_covariance_from_mg
@@ -60,15 +61,15 @@ function get_ellipce_from_covariance(cov,mn)
     eigval_mΓ = eigvals(cov);
     eigvec_mΓ = eigvecs(cov);
     # create an ellipse in the sky
-    ϕ=linspace(0,2π,1000);
+    ϕ=range(0,2π,1000);
     x = sin.(ϕ); y = cos.(ϕ);
     chi2v_3sigma = 9.21
     chi2v_2sigma = 5.99
     x *= sqrt(eigval_mΓ[1]*chi2v_2sigma)
     y *= sqrt(eigval_mΓ[2]*chi2v_2sigma)
-    θ = atan2(eigvec_mΓ[1,2],eigvec_mΓ[1,1])
+    θ = atan(eigvec_mΓ[1,2],eigvec_mΓ[1,1])
     x, y = x*cos(θ)-y*sin(θ),x*sin(θ)+y*cos(θ)
-    x, y = x+mn[1], y+mn[2]
+    x, y = x .+ mn[1], y .+ mn[2]
     collect(zip(x, y))
 end
 
@@ -91,9 +92,9 @@ function get_ellipce_axis_from_covariance(cov,mn)
     chi2v_2sigma = 5.99
     x *= sqrt(eigval_mΓ[1]*chi2v_2sigma)
     y *= sqrt(eigval_mΓ[2]*chi2v_2sigma)
-    θ = atan2(eigvec_mΓ[1,2],eigvec_mΓ[1,1])
+    θ = atan(eigvec_mΓ[1,2],eigvec_mΓ[1,1])
     x, y = x*cos(θ)-y*sin(θ),x*sin(θ)+y*cos(θ)
-    x, y = x+mn[1], y+mn[2]
+    x, y = x .+ mn[1], y .+ mn[2]
     collect(zip(x, y))
 end
 

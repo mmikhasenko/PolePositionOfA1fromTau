@@ -1,0 +1,4 @@
+/docs/build/
+/artifacts/
+*.cov
+.DS_Store
