@@ -51,6 +51,29 @@ export t_qtb_disp_II, t_qtb_disp_II_external
 #   return complex(vegas(integrand, 1, 2)[1]...)/(8π)^2/(2π)
 # end
 
+"""
+    qtb(s)
+    qtb(s::Complex, rr=1.0)
+
+Return the dimensionless quasi-two-body a₁ → ρπ spectral density, integrating
+one normalized rho-isobar decay chain over three-pion phase space. Interference
+between the symmetrized decay chains is omitted; see [`symm`](@ref).
+
+`s` is the total three-pion invariant mass squared in GeV². For real `s`,
+the result vanishes at and below `9mπ²`. The fixed pion/rho masses, rho width,
+and barrier radius are defined in `Masses` and `Isobars`.
+For complex `s`, optional `rr` scales the real part of the historical outer
+contour waypoint; `rr <= 0` selects the direct path. This is a contour
+parameter, not a physical model parameter or a guarantee of the intended sheet.
+
+# Example
+```jldoctest
+julia> using PolePositionOfA1fromTau
+
+julia> qtb(1.2) > 0 # s in GeV²
+true
+```
+"""
 function qtb(s::Real)
   s <= 9mπ2 && return 0.0
   s1min = 4.0 * mπ2
@@ -115,6 +138,29 @@ function angular_pow2(s, s1, z, m1sq, m2sq, m3sq, s3)
 end
 
 
+"""
+    interference(s::Float64)
+    interference(s::Complex, rr=1.0)
+
+Return the dimensionless additive interference contribution from the two
+rho-pion decay chains integrated over the Dalitz plot:
+`symm(s) = qtb(s) + interference(s)`. Its sign is the opposite of the term
+called ρ_INT in the paper. The interference alone need not be positive.
+
+`s` is the three-pion invariant mass squared in GeV². Use a `Float64` for
+physical real-axis evaluation; the result is zero at and below `9mπ²`.
+For complex `s`, `rr` scales the real part of the outer contour waypoint;
+`rr <= 0` removes that bend. The complex method retains the historical contour
+prescription discussed in the addendum; its global sheet transport is not certified.
+
+# Example
+```jldoctest
+julia> using PolePositionOfA1fromTau
+
+julia> isapprox(qtb(1.2) + interference(1.2), symm(1.2))
+true
+```
+"""
 function interference(s::Float64)
     (s ≤ 9mπ2) && return 0.0
     function integrand(x,f)
@@ -215,6 +261,28 @@ function interference_array(s, rr = 1.0, N=10)
   [integrand([x,y]) for y in range(0,1,N), x in range(0,1,N)]
 end
 
+"""
+    symm(s)
+    symm(s::Complex, rr=1.0)
+
+Return the dimensionless a₁ → ρπ → 3π spectral density symmetrized over the
+decay Dalitz plot, including interference: `qtb(s) + interference(s)`.
+This supplies the absorptive part of the symmetrized dispersive lineshape.
+
+`s` is the total three-pion invariant mass squared in GeV²; use `Float64`
+for the physical real-axis density. The optional complex-contour parameter
+`rr` is forwarded to [`qtb`](@ref) and [`interference`](@ref); consult their
+contour limitations before using complex energies. For repeated real-axis
+lineshape evaluation, `JPACModel.dispersive_model(:symm)` caches the density table.
+
+# Example
+```jldoctest
+julia> using PolePositionOfA1fromTau
+
+julia> symm(1.2) > 0 # physical three-pion spectral density
+true
+```
+"""
 symm(args...) = qtb(args...) + interference(args...)
 ρ_symm = symm
 ρ_qtb = qtb

@@ -4,6 +4,8 @@
 
 Julia 1.13 implementation accompanying [Mikhasenko et al., Physical Review D 98, 096021 (2018)](https://doi.org/10.1103/PhysRevD.98.096021).
 
+The lineshape is a Breit–Wigner-like parametrization whose energy-dependent self-energy describes a₁ → ρπ → 3π, symmetrized over the three-pion decay Dalitz plot. The Dalitz integral supplies the absorptive part; a subtracted dispersion integral supplies the corresponding real part and implements the first-sheet analytic structure of the three-body loop. The QTB variant omits interference between the two ρπ decay chains.
+
 ## Reproduce locally
 
 From the repository root:

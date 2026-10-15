@@ -5,6 +5,9 @@ DispersiveLineshape
 selfenergy
 amplitude
 intensity
+qtb
+interference
+symm
 ```
 
 The historical modules remain available below `PolePositionOfA1fromTau`: `Masses`, `Isobars`, `DalitzPlotAnalysis`, `JPACModel`, `SomeRoutines`, `Fitting`, `ErrorPropagation`, and `sQTBDISPk`.

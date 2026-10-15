@@ -2,6 +2,8 @@
 
 # Lineshape and dispersive integral
 
+The lineshape is a Breit–Wigner-like parametrization whose energy-dependent self-energy describes a₁ → ρπ → 3π, symmetrized over the three-pion decay Dalitz plot. The Dalitz integral supplies the absorptive part; a subtracted dispersion integral supplies the corresponding real part and implements the first-sheet analytic structure of the three-body loop. The QTB variant omits interference between the two ρπ decay chains.
+
 These formulas specify the implemented convention without requiring the historical plotting scripts. The real-axis model follows the paper's QTB and symmetrized phase-space construction; complex interference remains subject to the [addendum](addendum.md).
 
 ## Quantities and units
