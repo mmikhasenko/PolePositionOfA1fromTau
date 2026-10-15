@@ -15,7 +15,7 @@ julia +1.13 --project=. scripts/generate_docs.jl
 julia +1.13 --project=. docs/make.jl
 ```
 
-The committed `Manifest.toml` fixes the dependency graph. Markdown in `docs/src/` is generated from `docs/templates/`, the script inventory, and `CITATION.bib`; edit those inputs and regenerate. Use `scripts/generate_docs.jl --check` to detect stale pages. Documenter builds `docs/build/index.html`, checks references and doctests, and fails CI on errors. CI retains the HTML and build log as downloadable artifacts.
+The committed `Manifest.toml` fixes the dependency graph. Markdown in `docs/src/` is generated from `docs/templates/`, the script inventory, and `CITATION.bib`; edit those inputs and regenerate. Use `scripts/generate_docs.jl --check` to detect stale pages. Documenter builds `docs/build/index.html`, checks references and doctests, and fails CI on errors. CI retains the HTML and build log as downloadable artifacts. After successful main-branch checks, Documenter publishes the generated site to the root of `gh-pages`. GitHub Pages serves that branch at [the documentation site](https://mmikhasenko.github.io/PolePositionOfA1fromTau/). Pull requests and local builds do not deploy. A repository-scoped SSH deploy key (`DOCUMENTER_KEY`) lets the branch push trigger the Pages build.
 
 Read [the equations](lineshape.md), [the runnable scripts](scripts.md), [the API](api.md), and [the analytic-continuation addendum](addendum.md). CSV and TOML output goes to `artifacts/` (override with `A1_OUTPUT_DIR`). Example parameters are explicitly illustrative; the upgrade is not a refit of the published pole.
 

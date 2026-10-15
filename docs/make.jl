@@ -9,3 +9,12 @@ makedocs(
            "API"=>"api.md", "Addendum"=>"addendum.md", "Citation"=>"citation.md"],
     doctest=true, checkdocs=:exports, warnonly=false,
 )
+
+# Publish only when explicitly enabled by the trusted main-branch CI job.
+if get(ENV, "DOCUMENTER_DEPLOY", "false") == "true"
+    deploydocs(
+        repo="github.com/mmikhasenko/PolePositionOfA1fromTau.git",
+        devbranch="main", branch="gh-pages", versions=nothing,
+        push_preview=false,
+    )
+end
